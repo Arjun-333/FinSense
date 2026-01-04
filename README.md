@@ -39,7 +39,7 @@ _Port: 5173_
 
 Since this is a **PWA (Web App)**, you have two options:
 
-### Option A: The Web Way (Recommended for Hackathons) 🌐
+### Option A: The Web Way (Recommended for Hackathons)
 
 You **deploy** the website to the internet. Users visit the link and click "Add to Home Screen".
 
