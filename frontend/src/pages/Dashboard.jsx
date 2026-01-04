@@ -22,8 +22,8 @@ const Dashboard = () => {
                 const [expRes, catRes, budgetRes, insightRes] = await Promise.all([
                     API.get('/expenses'),
                     API.get('/categories'),
-                    API.get('/budgets'), // New API call
-                    API.get('/insights') // New API call
+                    API.get('/budgets'),
+                    API.get('/analytics/insights')
                 ]);
                 
                 setExpenses(expRes.data);
@@ -76,7 +76,7 @@ const Dashboard = () => {
                         {user?.name?.[0]}
                     </div>
                 </div>
-            </div>
+            </header>
 
             {/* Main Card */}
             <div className="bg-gray-900 rounded-3xl p-6 text-white shadow-xl shadow-gray-900/20 mb-6 relative overflow-hidden">

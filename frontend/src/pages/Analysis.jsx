@@ -12,7 +12,7 @@ const Analysis = () => {
         const fetchData = async () => {
             try {
                 const [trendRes, expRes] = await Promise.all([
-                    API.get('/trends'),
+                    API.get('/analytics/trends'),
                     API.get('/expenses')
                 ]);
                 setTrends(trendRes.data);

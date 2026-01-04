@@ -60,10 +60,10 @@ router.post('/', protect, async (req, res) => {
 // @access  Private
 router.delete('/:id', protect, async (req, res) => {
   try {
-    const expense = await Expense.findById(req.id);
+    const expense = await Expense.findOne({ _id: req.params.id, user: req.user._id });
 
-    if (expense && expense.user.toString() === req.user._id.toString()) {
-      await expense.remove();
+    if (expense) {
+      await expense.deleteOne(); // or findByIdAndDelete
       res.json({ message: 'Expense removed' });
     } else {
       res.status(404).json({ message: 'Expense not found or unauthorized' });
