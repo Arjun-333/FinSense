@@ -1,8 +1,8 @@
-# 💰 FinSense - Smart Expense Tracker
+# FinSense - Smart Expense Tracker
 
 FinSense is a **Progressive Web App (PWA)** designed to look and feel like a premium mobile app. It features Smart SMS Parsing, Expense Trends, and Dark Mode.
 
-## 🚀 How to Run Locally (Developer Mode)
+## How to Run Locally (Developer Mode)
 
 You need **two** terminals open to run the full stack (Frontend + Backend).
 
@@ -35,11 +35,11 @@ _Port: 5173_
 
 ---
 
-## 📲 How to Share / "Send" the App
+## How to Share / "Send" the App
 
 Since this is a **PWA (Web App)**, you have two options:
 
-### Option A: The Web Way (Recommended for Hackathons) 🌐
+### Option A: The Web Way (Recommended for Hackathons)
 
 You **deploy** the website to the internet. Users visit the link and click "Add to Home Screen".
 
@@ -48,7 +48,7 @@ You **deploy** the website to the internet. Users visit the link and click "Add 
 3.  **Share the URL** (e.g., `finsense.vercel.app`).
 4.  Users install it instantly (No APK download needed).
 
-### Option B: The Native APK Way (Advanced) 🤖
+### Option B: The Native APK Way (Advanced)
 
 To get a real `.apk` file that you can send via WhatsApp:
 
@@ -68,7 +68,7 @@ To get a real `.apk` file that you can send via WhatsApp:
 
 ---
 
-## 🛠️ Features
+## Features
 
 - **Smart Paste**: Auto-detects amount/merchant from SMS text.
 - **Trends**: Visual charts of your spending.
