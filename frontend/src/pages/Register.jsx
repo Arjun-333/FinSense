@@ -24,8 +24,8 @@ const Register = () => {
     <div className="flex flex-col items-center justify-center min-h-dvh p-4 bg-gradient-to-br from-indigo-50 via-white to-pink-50">
       <div className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
         <div className="text-center mb-8">
-             <div className="w-16 h-16 bg-primary rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-primary/30 transform -rotate-3">
-                <span className="text-2xl text-white font-bold">F</span>
+             <div className="w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+                <img src="/logo.jpg" alt="FinSense Logo" className="w-full h-full object-contain drop-shadow-lg rounded-2xl" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Create Account</h1>
             <p className="text-gray-500 mt-2 font-medium">Join FinSense today</p>
@@ -44,7 +44,7 @@ const Register = () => {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-5 py-3.5 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all bg-gray-50/50 focus:bg-white"
+              className="w-full px-5 py-3.5 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all bg-gray-50/50 focus:bg-white text-gray-900"
               placeholder="John Doe"
               required
             />
@@ -56,7 +56,7 @@ const Register = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-5 py-3.5 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all bg-gray-50/50 focus:bg-white"
+              className="w-full px-5 py-3.5 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all bg-gray-50/50 focus:bg-white text-gray-900"
               placeholder="hello@example.com"
               required
             />
@@ -68,7 +68,7 @@ const Register = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-5 py-3.5 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all bg-gray-50/50 focus:bg-white"
+              className="w-full px-5 py-3.5 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all bg-gray-50/50 focus:bg-white text-gray-900"
               placeholder="••••••••"
               required
             />

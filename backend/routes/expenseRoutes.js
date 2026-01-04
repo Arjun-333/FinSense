@@ -29,8 +29,12 @@ router.post('/', protect, async (req, res) => {
     transactionId,
     payee,
     notes,
-    isRecurring
+    type,
+    isRecurring,
+    recurringFrequency
   } = req.body;
+
+  console.log("Add Expense Request:", req.body);
 
   try {
     const expense = new Expense({
@@ -42,7 +46,9 @@ router.post('/', protect, async (req, res) => {
       transactionId,
       payee,
       notes,
-      isRecurring
+      type,
+      isRecurring,
+      recurringFrequency
     });
 
     const createdExpense = await expense.save();

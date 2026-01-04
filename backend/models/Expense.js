@@ -36,9 +36,20 @@ const expenseSchema = mongoose.Schema({
     type: String,
     required: false,
   },
+  type: {
+    type: String,
+    enum: ['expense', 'income'],
+    default: 'expense',
+    required: true
+  },
   isRecurring: {
     type: Boolean, // Future recurring support
     default: false,
+  },
+  recurringFrequency: {
+    type: String,
+    enum: ['daily', 'weekly', 'monthly', 'yearly'],
+    required: function() { return this.isRecurring; }
   }
 }, {
   timestamps: true,

@@ -15,11 +15,13 @@ const generateToken = (id) => {
 // @access  Public
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
+  console.log("Register Request:", { name, email, password });
 
   try {
     const userExists = await User.findOne({ email });
 
     if (userExists) {
+      console.log("User already exists:", email);
       return res.status(400).json({ message: 'User already exists' });
     }
 
@@ -30,6 +32,7 @@ router.post('/register', async (req, res) => {
     });
 
     if (user) {
+      console.log("User created successfully:", user._id);
       res.status(201).json({
         _id: user._id,
         name: user.name,
@@ -37,9 +40,11 @@ router.post('/register', async (req, res) => {
         token: generateToken(user._id),
       });
     } else {
+      console.log("Invalid user data - User.create returned null");
       res.status(400).json({ message: 'Invalid user data' });
     }
   } catch (error) {
+    console.error("Register Error:", error);
     res.status(500).json({ message: error.message });
   }
 });

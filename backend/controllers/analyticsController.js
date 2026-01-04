@@ -20,7 +20,8 @@ const getTrends = async (req, res) => {
       {
         $group: {
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
-          amount: { $sum: "$amount" }
+          income: { $sum: { $cond: [{ $eq: ["$type", "income"] }, "$amount", 0] } },
+          expense: { $sum: { $cond: [{ $ne: ["$type", "income"] }, "$amount", 0] } }
         }
       },
       { $sort: { _id: 1 } }
@@ -36,7 +37,10 @@ const getTrends = async (req, res) => {
       
       data.push({
         date: d.toLocaleDateString('en-US', { weekday: 'short' }),
-        amount: found ? found.amount : 0
+        income: found ? found.income : 0,
+        expense: found ? found.expense : 0,
+        balance: found ? (found.income - found.expense) : 0,
+        amount: found ? found.expense : 0 // Backward compat default
       });
     }
 

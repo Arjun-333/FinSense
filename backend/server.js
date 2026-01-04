@@ -5,31 +5,42 @@ const connectDB = require("./config/db");
 
 dotenv.config();
 
-connectDB();
+const startServer = async () => {
+  try {
+    await connectDB();
 
-const app = express();
+    const app = express();
 
-app.use(cors());
-app.use(express.json());
+    app.use(cors());
+    app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("FinSense API is running...");
-});
+    app.get("/", (req, res) => {
+      res.send("FinSense API is running...");
+    });
 
-const authRoutes = require("./routes/authRoutes");
-const expenseRoutes = require("./routes/expenseRoutes");
-const categoryRoutes = require("./routes/categoryRoutes");
-const budgetRoutes = require("./routes/budgetRoutes");
-const analyticsRoutes = require("./routes/analyticsRoutes");
+    const authRoutes = require("./routes/authRoutes");
+    const expenseRoutes = require("./routes/expenseRoutes");
+    const categoryRoutes = require("./routes/categoryRoutes");
+    const budgetRoutes = require("./routes/budgetRoutes");
+    const analyticsRoutes = require("./routes/analyticsRoutes");
 
-app.use("/api/auth", authRoutes);
-app.use("/api/expenses", expenseRoutes);
-app.use("/api/categories", categoryRoutes);
-app.use("/api/budgets", budgetRoutes);
-app.use("/api/analytics", analyticsRoutes);
+    app.use("/api/auth", authRoutes);
+    app.use("/api/expenses", expenseRoutes);
+    app.use("/api/categories", categoryRoutes);
+    app.use("/api/budgets", budgetRoutes);
+    console.log("Budget routes initialized");
+    app.use("/api/analytics", analyticsRoutes);
 
-const PORT = process.env.PORT || 5000;
+    const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Local Database ready.`);
+    });
+  } catch (error) {
+    console.error("Server Startup Error:", error);
+    process.exit(1);
+  }
+};
+
+startServer();

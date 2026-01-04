@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, TrendingUp } from 'lucide-react';
-import { clsx } from 'clsx';
+import { ArrowUpRight, ArrowDownRight, TrendingUp, Wallet, Utensils, Car, Film, Receipt, ShoppingBag, Activity, Banknote, Trophy, Calculator, Calendar as CalendarIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
+import { clsx } from 'clsx';
 const COLORS = ['#6366F1', '#EC4899', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'];
 
 const Dashboard = () => {
@@ -13,8 +12,9 @@ const Dashboard = () => {
     const [expenses, setExpenses] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [totalSpent, setTotalSpent] = useState(0); // Changed totalSpent to state
-    const [insights, setInsights] = useState([]); // New state
+    const [totalSpent, setTotalSpent] = useState(0);
+    const [totalIncome, setTotalIncome] = useState(0);
+    const [insights, setInsights] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -28,14 +28,23 @@ const Dashboard = () => {
                 
                 setExpenses(expRes.data);
                 setCategories(catRes.data);
-                // Calculate total spent
-                const total = expRes.data.reduce((acc, curr) => acc + Number(curr.amount), 0);
+                
+                // Calculate Total Spent (Only Type = 'expense')
+                const total = expRes.data
+                    .filter(item => item.type === 'expense')
+                    .reduce((acc, curr) => acc + Number(curr.amount), 0);
                 setTotalSpent(total);
                 
+                // Calculate Total Income
+                const income = expRes.data
+                    .filter(item => item.type === 'income')
+                    .reduce((acc, curr) => acc + Number(curr.amount), 0);
+                setTotalIncome(income);
+
                 setInsights(insightRes.data);
 
             } catch (error) {
-                console.error("Failed to load dashboard data", error); // Updated error message
+                console.error("Failed to load dashboard data", error);
             } finally {
                 setLoading(false);
             }
@@ -43,20 +52,35 @@ const Dashboard = () => {
         fetchData();
     }, []);
 
-    // Derived Data
     const recentExpenses = expenses.slice(0, 5);
 
-    // Group by category for chart
-    const categoryData = expenses.reduce((acc, curr) => {
-        const catName = curr.category?.name || 'Uncategorized';
-        const existing = acc.find(item => item.name === catName);
-        if (existing) {
-            existing.value += curr.amount;
-        } else {
-            acc.push({ name: catName, value: curr.amount, color: curr.category?.color || '#000' });
+    // Chart Data (Only Expenses)
+    const categoryData = expenses
+        .filter(item => item.type === 'expense')
+        .reduce((acc, curr) => {
+            const catName = curr.category?.name || 'Uncategorized';
+            const existing = acc.find(item => item.name === catName);
+            if (existing) {
+                existing.value += curr.amount;
+            } else {
+                acc.push({ name: catName, value: curr.amount, color: curr.category?.color || '#000' });
+            }
+            return acc;
+        }, []);
+    
+    // Helper to get icon
+    const getCategoryIcon = (iconName) => {
+        switch (iconName) {
+            case 'Utensils': return <Utensils size={20} />;
+            case 'Car': return <Car size={20} />;
+            case 'Film': return <Film size={20} />;
+            case 'Receipt': return <Receipt size={20} />;
+            case 'ShoppingBag': return <ShoppingBag size={20} />;
+            case 'Activity': return <Activity size={20} />;
+            case 'Banknote': return <Banknote size={20} />;
+            default: return <Wallet size={20} />;
         }
-        return acc;
-    }, []);
+    };
 
     if (loading) return (
       <div className="flex justify-center items-center h-screen text-primary">
@@ -68,86 +92,119 @@ const Dashboard = () => {
         <div className="pb-24 space-y-6">
             <header className="flex justify-between items-center px-4 pt-2">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Hello, {user?.name} 👋</h1>
-                    <p className="text-gray-500 text-sm">Here's your financial overview</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Hello, {user?.name}</h1>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Here's your financial overview</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
-                    <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 overflow-hidden border border-indigo-200 dark:border-indigo-800">
+                    <div className="w-full h-full flex items-center justify-center text-primary font-bold">
                         {user?.name?.[0]}
                     </div>
                 </div>
             </header>
 
-            {/* Main Card */}
-            <div className="bg-gray-900 rounded-3xl p-6 text-white shadow-xl shadow-gray-900/20 mb-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mt-10 -mr-10 blur-2xl"></div>
-                <div className="relative z-10">
-                    <p className="text-gray-400 text-sm font-medium mb-1">Total Spent this Month</p>
-                    <h2 className="text-4xl font-bold mb-4">₹{totalSpent.toLocaleString()}</h2>
-                    
-                    <div className="flex gap-3">
-                        <div className="bg-white/10 px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-xs backdrop-blur-sm">
-                            <div className="w-4 h-4 rounded-full bg-green-400/20 flex items-center justify-center text-green-400">
-                                <ArrowDownRight size={10} />
-                            </div>
-                            <span>-2.5% vs last month</span>
+            {/* Main Stats Grid */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+                {/* Total Spent */}
+                <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 relative overflow-hidden">
+                    <div className="relative z-10">
+                        <div className="w-8 h-8 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-500 mb-3">
+                            <ArrowDownRight size={16} />
                         </div>
+                        <p className="text-gray-500 dark:text-gray-400 text-xs font-medium mb-1">Total Spent</p>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-primary">₹{totalSpent.toLocaleString()}</h2>
                     </div>
                 </div>
+
+                {/* Total Income */}
+                <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 relative overflow-hidden">
+                    <div className="relative z-10">
+                        <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 mb-3">
+                            <ArrowUpRight size={16} />
+                        </div>
+                        <p className="text-gray-500 dark:text-gray-400 text-xs font-medium mb-1">Total Income</p>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-primary">₹{totalIncome.toLocaleString()}</h2>
+                    </div>
+                </div>
+            </div>
+
+            {/* Quick Access */}
+            <div className="grid grid-cols-2 gap-4 px-4 mb-8">
+                <Link to="/budgets" className="bg-indigo-600 text-white p-4 rounded-2xl shadow-lg shadow-indigo-500/30 flex flex-col justify-between h-24 relative overflow-hidden group">
+                    <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                        <TrendingUp size={48} />
+                    </div>
+                    <TrendingUp size={24} />
+                    <span className="font-bold">Monthly Budgets</span>
+                </Link>
+                <Link to="/analysis" className="bg-white dark:bg-slate-800 text-gray-900 dark:text-white p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-24">
+                   <Activity size={24} className="text-primary" />
+                   <span className="font-bold">Analytics</span>
+                </Link>
+                <Link to="/goals" className="bg-white dark:bg-slate-800 text-gray-900 dark:text-white p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-24">
+                   <Trophy size={24} className="text-emerald-500" />
+                   <span className="font-bold">Goals</span>
+                </Link>
+                <Link to="/tools" className="bg-white dark:bg-slate-800 text-gray-900 dark:text-white p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-24">
+                   <Calculator size={24} className="text-purple-500" />
+                   <span className="font-bold">Tools</span>
+                </Link>
+                <Link to="/calendar" className="col-span-2 bg-white dark:bg-slate-800 text-gray-900 dark:text-white p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex items-center justify-between h-20">
+                   <div className="flex items-center gap-3">
+                       <div className="p-2 bg-blue-50 dark:bg-slate-700/50 rounded-xl text-blue-500">
+                           <CalendarIcon size={24} />
+                       </div>
+                       <span className="font-bold">Calendar View</span>
+                   </div>
+                   <ArrowUpRight size={16} className="text-gray-400" />
+                </Link>
             </div>
 
             {/* Chart Section */}
             <div className="mb-8">
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-gray-800">Spending by Category</h3>
+                <div className="flex justify-between items-center mb-4 px-4">
+                    <h3 className="font-bold text-gray-800 dark:text-gray-200">Spending by Category</h3>
                 </div>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-64 flex items-center justify-center">
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 mx-4 h-72 flex flex-col items-center justify-center">
                     {categoryData.length === 0 ? (
-                        <p className="text-gray-400 text-sm">No expenses yet</p>
-                    ) : (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={categoryData}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={80}
-                                    paddingAngle={5}
-                                    dataKey="value"
-                                >
-                                    {categoryData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip />
-                            </PieChart>
-                        </ResponsiveContainer>
-                    )}
-                </div>
-                {/* Legend */}
-                <div className="flex flex-wrap gap-2 mt-4">
-                    {categoryData.slice(0,4).map((entry, index) => (
-                         <div key={index} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300 bg-white dark:bg-slate-700 px-2 py-1 rounded border border-gray-100 dark:border-slate-600">
-                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                            {entry.name} ({Math.round((entry.value / totalSpent) * 100)}%)
-                         </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Summary Card */}
-            <div className="px-4">
-                <div className="bg-primary text-white p-6 rounded-3xl shadow-xl shadow-indigo-500/20 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-                    <div className="relative z-10">
-                        <p className="text-indigo-100 text-sm font-medium mb-1">Total Spent This Month</p>
-                        <h2 className="text-4xl font-bold tracking-tight">₹{totalSpent}</h2>
-                        <div className="mt-4 flex items-center gap-2 text-sm bg-white/20 w-fit px-3 py-1 rounded-full backdrop-blur-sm">
-                             <span>📊</span>
-                             <span>Within Budget</span>
+                        <div className="text-center">
+                             <div className="w-16 h-16 bg-gray-50 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-300 dark:text-slate-500">
+                                <PieChart size={32} />
+                             </div>
+                             <p className="text-gray-400 dark:text-slate-500 text-sm">No expenses yet</p>
                         </div>
-                    </div>
+                    ) : (
+                        <>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={categoryData}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={65}
+                                        outerRadius={85}
+                                        paddingAngle={5}
+                                        dataKey="value"
+                                    >
+                                        {categoryData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} strokeWidth={0} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip 
+                                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
+                                        itemStyle={{ color: '#fff' }}
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+                            <div className="flex flex-wrap justify-center gap-2 mt-2">
+                                {categoryData.slice(0,4).map((entry, index) => (
+                                     <div key={index} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-slate-700/50 px-2 py-1 rounded-lg border border-gray-100 dark:border-slate-600">
+                                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                                        {entry.name}
+                                     </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -155,61 +212,34 @@ const Dashboard = () => {
             <div className="px-4">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="font-bold text-gray-800 dark:text-gray-100 text-lg">Recent Activity</h2>
-                    <button className="text-primary text-sm font-semibold hover:underline">See All</button>
+                    <Link to="/expenses" className="text-primary text-sm font-semibold hover:underline">See All</Link>
                 </div>
                 
                 <div className="space-y-3">
                      {expenses.slice(0, 3).map(expense => (
-                         <div key={expense._id} className="bg-white dark:bg-slate-800 p-4 rounded-2xl flex items-center justify-between border border-gray-100 dark:border-slate-700 shadow-sm">
+                         <div key={expense._id} className="bg-white dark:bg-slate-800 p-4 rounded-2xl flex items-center justify-between border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
                              <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-gray-50 dark:bg-slate-700 flex items-center justify-center text-2xl">
-                                    {expense.category?.icon === 'Utensils' ? '🍔' : '💸'}
+                                <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-slate-700 flex items-center justify-center text-primary dark:text-indigo-400">
+                                    {getCategoryIcon(expense.category?.icon)}
                                 </div>
                                 <div>
-                                    <p className="font-bold text-gray-900 dark:text-white">{expense.category?.name}</p>
-                                    <p className="text-xs text-gray-400">{new Date(expense.date).toLocaleDateString()}</p>
+                                    <p className="font-bold text-gray-900 dark:text-white capitalize">{expense.category?.name}</p>
+                                    <p className="text-xs text-gray-400">{new Date(expense.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</p>
                                 </div>
                              </div>
-                             <span className="font-bold text-gray-900 dark:text-gray-100">-₹{expense.amount}</span>
+                             <span className={clsx(
+                                 "font-bold",
+                                 expense.type === 'income' ? "text-green-500" : "text-gray-900 dark:text-gray-100"
+                             )}>
+                                {expense.type === 'income' ? '+' : '-'}₹{expense.amount}
+                             </span>
                          </div>
                      ))}
-                </div>
-            </div>
-
-            {/* Recent Transactions */}
-            <div className="px-4">
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-gray-800 dark:text-white">Recent Transactions</h3>
-                    <Link to="/expenses" className="text-sm text-primary font-medium hover:underline">View All</Link>
-                </div>
-                
-                <div className="space-y-3">
-                    {recentExpenses.length === 0 ? (
+                     {expenses.length === 0 && (
                          <div className="text-center py-8 bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-gray-200 dark:border-slate-700">
-                             <p className="text-gray-400 text-sm">No transactions found</p>
-                             <Link to="/add" className="text-primary text-sm font-medium mt-2 block">Add your first expense</Link>
+                              <p className="text-gray-400 text-sm">No recent activity</p>
                          </div>
-                    ) : (
-                        recentExpenses.map((expense) => (
-                            <div key={expense._id} className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-gray-50 dark:bg-slate-700 flex items-center justify-center text-xl">
-                                        {/* Simple Emoji or Icon based on category could go here */}
-                                        📝
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold text-gray-900 dark:text-white text-sm">{expense.category?.name}</h4>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                                            {new Date(expense.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} • {expense.paymentMethod}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <span className="block font-bold text-gray-900 dark:text-white">-₹{expense.amount}</span>
-                                </div>
-                            </div>
-                        ))
-                    )}
+                     )}
                 </div>
             </div>
         </div>

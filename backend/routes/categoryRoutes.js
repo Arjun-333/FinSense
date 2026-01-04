@@ -24,8 +24,7 @@ router.get('/', protect, async (req, res) => {
       $or: [{ user: null }, { user: req.user._id }],
     });
     
-    // If no defaults exist in DB, seed them (simple check)
-    // NOTE: In production, this seeding logic should be a separate script
+    // If no defaults exist in DB, seed them
     const defaultCount = await Category.countDocuments({ user: null });
     if (defaultCount === 0) {
       await Category.insertMany(DEFAULT_CATEGORIES);
@@ -60,6 +59,29 @@ router.post('/', protect, async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
+});
+
+// @desc    Delete custom category
+// @route   DELETE /api/categories/:id
+// @access  Private
+router.delete('/:id', protect, async (req, res) => {
+    try {
+        const category = await Category.findById(req.params.id);
+
+        if (!category) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
+
+        // Only allow deleting user-created categories, not defaults (user: null)
+        if (!category.user || category.user.toString() !== req.user._id.toString()) {
+            return res.status(401).json({ message: 'Cannot delete default categories' });
+        }
+
+        await category.deleteOne();
+        res.json({ message: 'Category removed' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 });
 
 module.exports = router;
