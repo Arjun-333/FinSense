@@ -20,6 +20,14 @@ const API = {
         if (url === '/trends') return MockAPI.getTrends();
         if (url === '/insights') return MockAPI.getInsights();
         return Promise.reject({ response: { data: { message: 'Mock route not found' } } });
+    },
+    delete: async (url) => {
+        console.log(`[MOCK DELETE] ${url}`);
+        if (url.startsWith('/expenses/')) {
+            const id = url.split('/').pop();
+            return MockAPI.deleteExpense(id);
+        }
+        return Promise.reject({ response: { data: { message: 'Mock route not found' } } });
     }
 };
 

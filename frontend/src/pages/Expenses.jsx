@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
 import { clsx } from 'clsx';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Expenses = () => {
@@ -22,6 +22,17 @@ const Expenses = () => {
         };
         fetchExpenses();
     }, []);
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this expense?")) {
+            try {
+                await API.delete(`/expenses/${id}`);
+                setExpenses(expenses.filter(e => e._id !== id));
+            } catch (error) {
+                console.error("Failed to delete expense");
+            }
+        }
+    };
 
     // Group by Date
     const groupedExpenses = expenses.reduce((groups, expense) => {
@@ -58,12 +69,12 @@ const Expenses = () => {
                             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                                 {groupedExpenses[date].map((expense, index) => (
                                     <div key={expense._id} className={clsx(
-                                        "p-4 flex items-center justify-between",
+                                        "p-4 flex items-center justify-between group",
                                         index !== groupedExpenses[date].length - 1 && "border-b border-gray-50"
                                     )}>
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-xl">
-                                                📝
+                                                {expense.category?.icon === 'Utensils' ? '🍔' : '💸'}
                                             </div>
                                             <div>
                                                 <h4 className="font-semibold text-gray-900 text-sm">{expense.category?.name}</h4>
@@ -75,9 +86,18 @@ const Expenses = () => {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <span className="block font-bold text-gray-900">-₹{expense.amount}</span>
-                                            <span className="text-xs text-gray-400">{new Date(expense.date).toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}</span>
+                                        <div className="flex items-center gap-4">
+                                            <div className="text-right">
+                                                <span className="block font-bold text-gray-900">-₹{expense.amount}</span>
+                                                <span className="text-xs text-gray-400">{new Date(expense.date).toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}</span>
+                                            </div>
+                                            <button 
+                                                onClick={() => handleDelete(expense._id)}
+                                                className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                                aria-label="Delete expense"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
