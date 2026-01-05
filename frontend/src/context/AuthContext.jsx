@@ -17,18 +17,16 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (email, password) => {
-    const { data } = await API.post('/auth/login', { email, password });
-    localStorage.setItem('user', JSON.stringify(data));
-    setUser(data);
-    return data;
+  const login = async (name) => {
+    // Simulating login - just saving name locally to bypass Auth
+    const dummyUser = { name, email: 'user@local', token: 'DUMMY_TOKEN' };
+    localStorage.setItem('user', JSON.stringify(dummyUser));
+    setUser(dummyUser);
+    return dummyUser;
   };
 
-  const register = async (name, email, password) => {
-    const { data } = await API.post('/auth/register', { name, email, password });
-    localStorage.setItem('user', JSON.stringify(data));
-    setUser(data);
-    return data;
+  const register = async (name) => {
+      return login(name);
   };
 
   const logout = () => {

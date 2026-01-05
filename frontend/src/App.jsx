@@ -1,8 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import Welcome from './pages/Welcome';
+import ErrorBoundary from './components/ErrorBoundary';
 import Dashboard from './pages/Dashboard';
 import Expenses from './pages/Expenses';
 import AddExpense from './pages/AddExpense';
@@ -17,12 +17,13 @@ import Profile from './pages/Profile';
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/welcome" element={<Welcome />} />
+      <Route path="/login" element={<Navigate to="/welcome" replace />} />
+      <Route path="/register" element={<Navigate to="/welcome" replace />} />
       
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
           <Route path="/expenses" element={<Expenses />} />
           <Route path="/add" element={<AddExpense />} />
           <Route path="/add-category" element={<AddCategory />} />

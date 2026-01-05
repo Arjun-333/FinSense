@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Moon, Sun } from 'lucide-react';
 import BottomNav from './BottomNav';
+import Loader from './Loader';
 import { useTheme } from '../context/ThemeContext';
 
 const Layout = () => {
@@ -20,17 +21,15 @@ const Layout = () => {
       </div>
 
       <main className="container mx-auto px-4 py-4 max-w-md md:max-w-4xl">
-        <AnimatePresence mode="wait">
-             <motion.div
-                key={location.pathname}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-             >
-                <Outlet />
-             </motion.div>
-        </AnimatePresence>
+        {/* Removed AnimatePresence to prevent blank screen delays */}
+        <motion.div
+           key={location.pathname}
+           initial={{ opacity: 0 }}
+           animate={{ opacity: 1 }}
+           transition={{ duration: 0.15 }}
+        >
+           <Outlet />
+        </motion.div>
       </main>
 
       <BottomNav />

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { ArrowUpRight, ArrowDownRight, TrendingUp, Wallet, Utensils, Car, Film, Receipt, ShoppingBag, Activity, Banknote, Trophy, Calculator, Calendar as CalendarIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -9,6 +10,7 @@ const COLORS = ['#6366F1', '#EC4899', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'
 
 const Dashboard = () => {
     const { user } = useAuth();
+    const { theme } = useTheme(); // To handle stroke color in chart
     const [expenses, setExpenses] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -82,124 +84,122 @@ const Dashboard = () => {
         }
     };
 
-    if (loading) return (
-      <div className="flex justify-center items-center h-screen text-primary">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+
 
     return (
         <div className="pb-24 space-y-6">
-            <header className="flex justify-between items-center px-4 pt-2">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Hello, {user?.name}</h1>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">Here's your financial overview</p>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 overflow-hidden border border-indigo-200 dark:border-indigo-800">
-                    <div className="w-full h-full flex items-center justify-center text-primary font-bold">
-                        {user?.name?.[0]}
+            <header className="px-4 pt-4 pb-2">
+                <div className="flex justify-between items-end">
+                    <div>
+                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Balance</p>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                          {loading ? <span className="animate-pulse bg-slate-200 dark:bg-slate-700 h-8 w-32 block rounded"></span> : `₹${(totalIncome - totalSpent).toLocaleString()}`}
+                        </h1>
+                    </div>
+                    <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold border border-slate-300 dark:border-slate-600">
+                        {user?.name ? user.name[0].toUpperCase() : 'U'}
                     </div>
                 </div>
             </header>
 
             {/* Main Stats Grid */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-                {/* Total Spent */}
-                <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 relative overflow-hidden">
-                    <div className="relative z-10">
-                        <div className="w-8 h-8 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-500 mb-3">
-                            <ArrowDownRight size={16} />
-                        </div>
-                        <p className="text-gray-500 dark:text-gray-400 text-xs font-medium mb-1">Total Spent</p>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-primary">₹{totalSpent.toLocaleString()}</h2>
-                    </div>
-                </div>
-
+            <div className="grid grid-cols-2 gap-3 px-4 mb-6">
                 {/* Total Income */}
-                <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-slate-700 relative overflow-hidden">
-                    <div className="relative z-10">
-                        <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 mb-3">
+                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="p-1.5 rounded-md bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600">
                             <ArrowUpRight size={16} />
                         </div>
-                        <p className="text-gray-500 dark:text-gray-400 text-xs font-medium mb-1">Total Income</p>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-primary">₹{totalIncome.toLocaleString()}</h2>
+                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Income</span>
                     </div>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">
+                        {loading ? <span className="animate-pulse bg-slate-200 dark:bg-slate-700 h-6 w-24 block rounded"></span> : `₹${totalIncome.toLocaleString()}`}
+                    </p>
+                </div>
+
+                {/* Total Spent */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="p-1.5 rounded-md bg-red-50 dark:bg-red-900/20 text-red-600">
+                            <ArrowDownRight size={16} />
+                        </div>
+                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Expenses</span>
+                    </div>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">
+                        {loading ? <span className="animate-pulse bg-slate-200 dark:bg-slate-700 h-6 w-24 block rounded"></span> : `₹${totalSpent.toLocaleString()}`}
+                    </p>
                 </div>
             </div>
 
             {/* Quick Access */}
-            <div className="grid grid-cols-2 gap-4 px-4 mb-8">
-                <Link to="/budgets" className="bg-indigo-600 text-white p-4 rounded-2xl shadow-lg shadow-indigo-500/30 flex flex-col justify-between h-24 relative overflow-hidden group">
-                    <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                        <TrendingUp size={48} />
-                    </div>
-                    <TrendingUp size={24} />
-                    <span className="font-bold">Monthly Budgets</span>
+            <div className="grid grid-cols-4 gap-2 px-4 mb-6">
+                <Link to="/budgets" className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm active:scale-95 transition-transform">
+                    <TrendingUp size={20} className="text-blue-500" />
+                    <span className="text-[10px] font-medium text-gray-600 dark:text-gray-300">Budgets</span>
                 </Link>
-                <Link to="/analysis" className="bg-white dark:bg-slate-800 text-gray-900 dark:text-white p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-24">
-                   <Activity size={24} className="text-primary" />
-                   <span className="font-bold">Analytics</span>
+                <Link to="/analysis" className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm active:scale-95 transition-transform">
+                    <Activity size={20} className="text-emerald-500" />
+                    <span className="text-[10px] font-medium text-gray-600 dark:text-gray-300">Analysis</span>
                 </Link>
-                <Link to="/goals" className="bg-white dark:bg-slate-800 text-gray-900 dark:text-white p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-24">
-                   <Trophy size={24} className="text-emerald-500" />
-                   <span className="font-bold">Goals</span>
+                <Link to="/goals" className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm active:scale-95 transition-transform">
+                    <Trophy size={20} className="text-amber-500" />
+                    <span className="text-[10px] font-medium text-gray-600 dark:text-gray-300">Goals</span>
                 </Link>
-                <Link to="/tools" className="bg-white dark:bg-slate-800 text-gray-900 dark:text-white p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-24">
-                   <Calculator size={24} className="text-purple-500" />
-                   <span className="font-bold">Tools</span>
-                </Link>
-                <Link to="/calendar" className="col-span-2 bg-white dark:bg-slate-800 text-gray-900 dark:text-white p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 flex items-center justify-between h-20">
-                   <div className="flex items-center gap-3">
-                       <div className="p-2 bg-blue-50 dark:bg-slate-700/50 rounded-xl text-blue-500">
-                           <CalendarIcon size={24} />
-                       </div>
-                       <span className="font-bold">Calendar View</span>
-                   </div>
-                   <ArrowUpRight size={16} className="text-gray-400" />
+                <Link to="/calendar" className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm active:scale-95 transition-transform">
+                    <CalendarIcon size={20} className="text-purple-500" />
+                    <span className="text-[10px] font-medium text-gray-600 dark:text-gray-300">Calendar</span>
                 </Link>
             </div>
 
             {/* Chart Section */}
-            <div className="mb-8">
-                <div className="flex justify-between items-center mb-4 px-4">
-                    <h3 className="font-bold text-gray-800 dark:text-gray-200">Spending by Category</h3>
+            <div className="mb-6">
+                <div className="px-4 mb-3">
+                    <h3 className="font-bold text-gray-800 dark:text-gray-200 text-sm">Spending Breakdown</h3>
                 </div>
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-700 mx-4 h-72 flex flex-col items-center justify-center">
-                    {categoryData.length === 0 ? (
-                        <div className="text-center">
-                             <div className="w-16 h-16 bg-gray-50 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-300 dark:text-slate-500">
-                                <PieChart size={32} />
-                             </div>
-                             <p className="text-gray-400 dark:text-slate-500 text-sm">No expenses yet</p>
-                        </div>
+                <div className="bg-white dark:bg-slate-800 p-4 mx-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 h-64 flex items-center justify-center">
+                    {loading ? (
+                         <div className="animate-pulse flex flex-col items-center gap-4 w-full">
+                            <div className="h-40 w-40 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                            <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                         </div>
+                    ) : categoryData.length === 0 ? (
+                         <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
+                            <PieChart size={32} className="mb-2 opacity-50"/>
+                            <span className="text-xs">No data to display</span>
+                         </div>
                     ) : (
                         <>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={categoryData}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={65}
-                                        outerRadius={85}
-                                        paddingAngle={5}
-                                        dataKey="value"
-                                    >
-                                        {categoryData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} strokeWidth={0} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip 
-                                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
-                                        itemStyle={{ color: '#fff' }}
-                                    />
-                                </PieChart>
-                            </ResponsiveContainer>
-                            <div className="flex flex-wrap justify-center gap-2 mt-2">
-                                {categoryData.slice(0,4).map((entry, index) => (
-                                     <div key={index} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-slate-700/50 px-2 py-1 rounded-lg border border-gray-100 dark:border-slate-600">
-                                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
-                                        {entry.name}
+                            <div className="flex-1 h-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={categoryData}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={45}
+                                            outerRadius={70}
+                                            paddingAngle={3}
+                                            dataKey="value"
+                                        >
+                                            {categoryData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} strokeWidth={1} stroke={theme === 'dark' ? '#1e293b' : '#fff'} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip 
+                                            contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '12px' }}
+                                            itemStyle={{ color: '#fff' }}
+                                        />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                            <div className="w-1/3 flex flex-col justify-center gap-2 overflow-y-auto max-h-full pl-2">
+                                {categoryData.sort((a,b) => b.value - a.value).slice(0,5).map((entry, index) => (
+                                     <div key={index} className="space-y-0.5">
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: entry.color || COLORS[index % COLORS.length] }}></div>
+                                            <span className="text-xs font-medium text-gray-600 dark:text-gray-300 truncate">{entry.name}</span>
+                                        </div>
+                                        <p className="text-[10px] text-gray-400 pl-3.5">₹{entry.value.toLocaleString()}</p>
                                      </div>
                                 ))}
                             </div>
@@ -210,34 +210,38 @@ const Dashboard = () => {
 
             {/* Recent Activity */}
             <div className="px-4">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="font-bold text-gray-800 dark:text-gray-100 text-lg">Recent Activity</h2>
-                    <Link to="/expenses" className="text-primary text-sm font-semibold hover:underline">See All</Link>
+                <div className="flex items-center justify-between mb-3">
+                    <h2 className="font-bold text-gray-800 dark:text-gray-100 text-sm">Recent Activity</h2>
+                    <Link to="/expenses" className="text-primary text-xs font-medium hover:underline">View All</Link>
                 </div>
                 
-                <div className="space-y-3">
-                     {expenses.slice(0, 3).map(expense => (
-                         <div key={expense._id} className="bg-white dark:bg-slate-800 p-4 rounded-2xl flex items-center justify-between border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
-                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-slate-700 flex items-center justify-center text-primary dark:text-indigo-400">
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                     {expenses && expenses.length > 0 ? (
+                        expenses.slice(0, 5).map((expense, i) => (
+                         <div key={expense._id} className={clsx(
+                             "p-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors",
+                             i !== expenses.slice(0, 5).length - 1 && "border-b border-slate-100 dark:border-slate-700"
+                         )}>
+                             <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300">
                                     {getCategoryIcon(expense.category?.icon)}
                                 </div>
                                 <div>
-                                    <p className="font-bold text-gray-900 dark:text-white capitalize">{expense.category?.name}</p>
-                                    <p className="text-xs text-gray-400">{new Date(expense.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</p>
+                                    <p className="font-medium text-sm text-gray-900 dark:text-white capitalize">{expense.category?.name}</p>
+                                    <p className="text-[10px] text-gray-500">{new Date(expense.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} • {expense.description || 'No desc'}</p>
                                 </div>
                              </div>
                              <span className={clsx(
-                                 "font-bold",
-                                 expense.type === 'income' ? "text-green-500" : "text-gray-900 dark:text-gray-100"
+                                 "font-medium text-sm",
+                                 expense.type === 'income' ? "text-emerald-600" : "text-gray-900 dark:text-gray-200"
                              )}>
-                                {expense.type === 'income' ? '+' : '-'}₹{expense.amount}
+                                {expense.type === 'income' ? '+' : '-'} ₹{expense.amount}
                              </span>
                          </div>
-                     ))}
-                     {expenses.length === 0 && (
-                         <div className="text-center py-8 bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-gray-200 dark:border-slate-700">
-                              <p className="text-gray-400 text-sm">No recent activity</p>
+                     ))
+                    ) : (
+                         <div className="text-center py-6">
+                              <p className="text-gray-400 text-xs">No recent activity</p>
                          </div>
                      )}
                 </div>

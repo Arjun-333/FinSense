@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const ensureDefaultUser = require("./utils/ensureDefaultUser");
 const connectDB = require("./config/db");
 
 dotenv.config();
@@ -8,6 +9,7 @@ dotenv.config();
 const startServer = async () => {
   try {
     await connectDB();
+    await ensureDefaultUser(); // Initialize default user for single-user mode
 
     const app = express();
 

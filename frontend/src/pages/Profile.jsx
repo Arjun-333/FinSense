@@ -84,7 +84,9 @@ const Profile = () => {
                         <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-slate-700 flex items-center justify-center text-primary dark:text-indigo-400">
                             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
                         </div>
-                        <span className="font-semibold text-gray-900 dark:text-white">Dark Mode</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                            {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                        </span>
                     </div>
                     <button 
                         onClick={toggleTheme}

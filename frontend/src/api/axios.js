@@ -1,8 +1,12 @@
 import axios from 'axios';
 
 // Create Axios instance pointing to the real backend
+// Create Axios instance
+const isMobile = window.navigator.userAgent.includes('Capacitor');
+const baseURL = isMobile ? 'http://10.190.183.229:5000/api' : 'http://localhost:5000/api';
+
 const API = axios.create({
-    baseURL: 'http://localhost:5000/api', // Standard local backend URL
+    baseURL,
     headers: {
         'Content-Type': 'application/json',
     },

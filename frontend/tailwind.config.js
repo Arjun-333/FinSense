@@ -8,8 +8,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#6366F1", // Indigo 500
-        secondary: "#ec4899", // Pink 500
+        primary: "#2563EB", // Royal Blue 600
+        secondary: "#059669", // Emerald 600
         background: "#0f172a", // Slate 900 (Dark mode base)
         surface: "#1e293b", // Slate 800
       },
