@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useToast } from '../context/ToastContext';
 import API from '../api/axios';
 import { clsx } from 'clsx';
 import { ArrowLeft, Trash2, Utensils, Car, Film, Receipt, ShoppingBag, Activity, Banknote, Wallet, Download, Search, FileText } from 'lucide-react';
@@ -8,6 +9,7 @@ import autoTable from 'jspdf-autotable';
 
 const Expenses = () => {
     const [expenses, setExpenses] = useState([]);
+    const { addToast } = useToast();
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const navigate = useNavigate();
@@ -31,8 +33,10 @@ const Expenses = () => {
             try {
                 await API.delete(`/expenses/${id}`);
                 setExpenses(expenses.filter(e => e._id !== id));
+                addToast("Expense deleted successfully", "success");
             } catch (error) {
                 console.error("Failed to delete expense");
+                addToast("Failed to delete expense", "error");
             }
         }
     };
@@ -186,7 +190,13 @@ const Expenses = () => {
                                         index !== groupedExpenses[date].length - 1 && "border-b border-gray-50 dark:border-slate-700"
                                     )}>
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-slate-700 flex items-center justify-center text-primary dark:text-indigo-400">
+                                            <div 
+                                                className="w-10 h-10 rounded-full flex items-center justify-center"
+                                                style={{ 
+                                                    backgroundColor: `${expense.category?.color || '#6366F1'}20`, 
+                                                    color: expense.category?.color || '#6366F1' 
+                                                }}
+                                            >
                                                 {getCategoryIcon(expense.category?.icon)}
                                             </div>
                                             <div>

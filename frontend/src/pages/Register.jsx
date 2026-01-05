@@ -10,13 +10,18 @@ const Register = () => {
   const navigate = useNavigate();
   const [error, setError] = useState('');
 
+const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await register(name, email, password);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Registration failed');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,9 +81,14 @@ const Register = () => {
 
           <button
             type="submit"
-            className="w-full bg-primary text-white font-bold py-4 rounded-2xl hover:bg-indigo-600 active:scale-[0.98] transition-all shadow-xl shadow-indigo-500/30 text-lg mt-2"
+            disabled={loading}
+            className="w-full bg-primary text-white font-bold py-4 rounded-2xl hover:bg-indigo-600 active:scale-[0.98] transition-all shadow-xl shadow-indigo-500/30 text-lg mt-2 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
           >
-            Create Account
+            {loading ? (
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+            ) : (
+              'Create Account'
+            )}
           </button>
         </form>
 

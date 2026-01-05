@@ -17,16 +17,18 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (name) => {
-    // Simulating login - just saving name locally to bypass Auth
-    const dummyUser = { name, email: 'user@local', token: 'DUMMY_TOKEN' };
-    localStorage.setItem('user', JSON.stringify(dummyUser));
-    setUser(dummyUser);
-    return dummyUser;
+  const login = async (email, password) => {
+    const { data } = await API.post('/auth/login', { email, password });
+    localStorage.setItem('user', JSON.stringify(data));
+    setUser(data);
+    return data;
   };
 
-  const register = async (name) => {
-      return login(name);
+  const register = async (name, email, password) => {
+      const { data } = await API.post('/auth/register', { name, email, password });
+      localStorage.setItem('user', JSON.stringify(data));
+      setUser(data);
+      return data;
   };
 
   const logout = () => {
@@ -34,8 +36,18 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateProfile = async (data) => {
+    const { data: updatedUser } = await API.put('/auth/profile', data);
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    // Merge updates with existing token
+    const newUser = { ...currentUser, ...updatedUser };
+    localStorage.setItem('user', JSON.stringify(newUser));
+    setUser(newUser);
+    return newUser;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateProfile, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );

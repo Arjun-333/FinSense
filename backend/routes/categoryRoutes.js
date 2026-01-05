@@ -19,22 +19,25 @@ const DEFAULT_CATEGORIES = [
 // @access  Private
 router.get('/', protect, async (req, res) => {
   try {
-    // Find defaults (no user) OR user specific
+    // Check if defaults exist
+    const defaultCount = await Category.countDocuments({ user: null });
+    
+    // If we have fewer than expected defaults, re-seed or add missing
+    if (defaultCount < DEFAULT_CATEGORIES.length) {
+        for (const defaultCat of DEFAULT_CATEGORIES) {
+            // Upsert each default category ensure they exist
+            await Category.findOneAndUpdate(
+                { name: defaultCat.name, user: null },
+                { ...defaultCat },
+                { upsert: true, new: true }
+            );
+        }
+    }
+
     const categories = await Category.find({
       $or: [{ user: null }, { user: req.user._id }],
     });
     
-    // If no defaults exist in DB, seed them
-    const defaultCount = await Category.countDocuments({ user: null });
-    if (defaultCount === 0) {
-      await Category.insertMany(DEFAULT_CATEGORIES);
-      // refetch
-      const seeded = await Category.find({
-        $or: [{ user: null }, { user: req.user._id }],
-      });
-      return res.json(seeded);
-    }
-
     res.json(categories);
   } catch (error) {
     res.status(500).json({ message: error.message });

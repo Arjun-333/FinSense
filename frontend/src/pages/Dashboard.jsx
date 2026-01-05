@@ -61,11 +61,17 @@ const Dashboard = () => {
         .filter(item => item.type === 'expense')
         .reduce((acc, curr) => {
             const catName = curr.category?.name || 'Uncategorized';
+            const amount = Number(curr.amount); // Ensure number
             const existing = acc.find(item => item.name === catName);
+            
             if (existing) {
-                existing.value += curr.amount;
+                existing.value += amount;
             } else {
-                acc.push({ name: catName, value: curr.amount, color: curr.category?.color || '#000' });
+                acc.push({ 
+                    name: catName, 
+                    value: amount, 
+                    color: curr.category?.color || '#94a3b8' 
+                });
             }
             return acc;
         }, []);
@@ -193,7 +199,7 @@ const Dashboard = () => {
                                 </ResponsiveContainer>
                             </div>
                             <div className="w-1/3 flex flex-col justify-center gap-2 overflow-y-auto max-h-full pl-2">
-                                {categoryData.sort((a,b) => b.value - a.value).slice(0,5).map((entry, index) => (
+                                {[...categoryData].sort((a,b) => b.value - a.value).slice(0,5).map((entry, index) => (
                                      <div key={index} className="space-y-0.5">
                                         <div className="flex items-center gap-1.5">
                                             <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: entry.color || COLORS[index % COLORS.length] }}></div>
@@ -223,7 +229,13 @@ const Dashboard = () => {
                              i !== expenses.slice(0, 5).length - 1 && "border-b border-slate-100 dark:border-slate-700"
                          )}>
                              <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300">
+                                <div 
+                                    className="w-9 h-9 rounded-lg flex items-center justify-center"
+                                    style={{ 
+                                        backgroundColor: `${expense.category?.color || '#94a3b8'}20`, 
+                                        color: expense.category?.color || '#94a3b8'
+                                    }}
+                                >
                                     {getCategoryIcon(expense.category?.icon)}
                                 </div>
                                 <div>

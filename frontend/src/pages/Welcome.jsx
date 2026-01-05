@@ -6,14 +6,15 @@ import { ArrowRight, ShieldCheck, TrendingUp } from 'lucide-react';
 
 const Welcome = () => {
   const [name, setName] = useState('');
-  const { login } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) return;
     
-    await login(name);
+    // For offline mode, we just register them with the name and dummy creds
+    await register(name, 'user@offline.local', 'password');
     navigate('/');
   };
 

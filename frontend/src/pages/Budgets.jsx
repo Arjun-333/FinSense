@@ -175,7 +175,7 @@ const Budgets = () => {
 
             {/* Set Budget Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4 backdrop-blur-sm">
+                <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4 backdrop-blur-sm">
                     <motion.div 
                         initial={{ y: '100%' }}
                         animate={{ y: 0 }}

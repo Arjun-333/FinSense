@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useToast } from '../context/ToastContext';
 import API from '../api/axios';
 import { ArrowLeft, Plus, Target, Trophy, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +12,7 @@ const COLORS = ['#10B981', '#3B82F6', '#8B5CF6', '#EC4899', '#F59E0B'];
 const Goals = () => {
     const navigate = useNavigate();
     const [goals, setGoals] = useState([]);
+    const { addToast } = useToast();
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     
@@ -47,8 +49,10 @@ const Goals = () => {
             setIsModalOpen(false);
             resetForm();
             fetchGoals();
+            fetchGoals();
+            addToast("Goal created successfully", "success");
         } catch (error) {
-            alert("Failed to create goal");
+            addToast("Failed to create goal", "error");
         }
     };
 
@@ -57,7 +61,8 @@ const Goals = () => {
             try {
                 await API.delete(`/goals/${id}`);
                 setGoals(goals.filter(g => g._id !== id));
-            } catch (e) { alert("Failed to delete"); }
+                addToast("Goal deleted", "success");
+            } catch (e) { addToast("Failed to delete goal", "error"); }
         }
     }
 
@@ -68,7 +73,8 @@ const Goals = () => {
                 const newAmount = goal.savedAmount + Number(amount);
                 await API.put(`/goals/${goal._id}`, { savedAmount: newAmount });
                 fetchGoals();
-            } catch (e) { alert("Failed to update"); }
+                addToast("Money added to goal!", "success");
+            } catch (e) { addToast("Failed to update goal", "error"); }
         }
     }
 
@@ -158,7 +164,7 @@ const Goals = () => {
 
             {/* Modal */}
             {isModalOpen && (
-                 <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4 backdrop-blur-sm">
+                 <div className="fixed inset-0 bg-black/50 z-[60] flex items-end sm:items-center justify-center p-4 backdrop-blur-sm">
                     <motion.div 
                         initial={{ y: '100%' }}
                         animate={{ y: 0 }}

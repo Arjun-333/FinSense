@@ -3,14 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, Plus, Wallet, Utensils, Car, Film, Receipt, ShoppingBag, Activity, Banknote, ClipboardList, Repeat, Trash2 } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 import { clsx } from 'clsx';
 
 const AddExpense = () => {
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  });
   const [paymentMethod, setPaymentMethod] = useState('UPI');
   const [transactionId, setTransactionId] = useState('');
   const [type, setType] = useState('expense'); // 'expense' or 'income'
@@ -63,10 +68,11 @@ const AddExpense = () => {
         isRecurring,
         recurringFrequency: isRecurring ? frequency : undefined
       });
+      addToast("Expense added successfully!", "success");
       navigate('/');
     } catch (error) {
       console.error("Failed to add transaction");
-      alert("Failed to save. Please try again.");
+      addToast("Failed to save. Please try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -78,9 +84,10 @@ const AddExpense = () => {
             await API.delete(`/categories/${id}`);
             setCategories(categories.filter(c => c._id !== id));
             if (categoryId === id) setCategoryId('');
+            addToast("Category deleted", "success");
         } catch (error) {
             console.error("Failed to delete category");
-            alert("Could not delete category");
+            addToast("Could not delete category", "error");
         }
     }
   };
@@ -109,33 +116,6 @@ const AddExpense = () => {
             </button>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Add Transaction</h1>
          </div>
-         <button 
-           type="button"
-           onClick={async () => {
-             try {
-               const text = await navigator.clipboard.readText();
-               // Regex for standard Indian Bank SMS
-               const amountMatch = text.match(/(?:Rs\.?|INR)\s*([\d,]+(?:\.\d{2})?)/i);
-               const merchMatch = text.match(/(?:at|to|via)\s+([a-zA-Z0-9\s]+?)(?:\s+on|via|ref|bal)/i);
-               
-               if (amountMatch) {
-                  setAmount(amountMatch[1].replace(/,/g, ''));
-                  if (merchMatch) {
-                      setDescription(merchMatch[1].trim());
-                  }
-                  setPaymentMethod('UPI');
-                  alert('Parsed SMS data! 🪄');
-               } else {
-                  alert('No amount found in clipboard.');
-               }
-             } catch (err) {
-               alert('Failed to read clipboard.');
-             }
-           }}
-           className="text-xs font-bold text-primary bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-lg border border-indigo-100 dark:border-indigo-800 flex items-center gap-1 hover:bg-indigo-100 transition-colors"
-         >
-           <ClipboardList size={14} /> Paste SMS
-         </button>
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm p-6 mx-auto border border-gray-100 dark:border-slate-700">
@@ -199,14 +179,17 @@ const AddExpense = () => {
                             <button
                                 type="button"
                                 onClick={() => setCategoryId(cat._id)}
+                                style={{
+                                    backgroundColor: categoryId === cat._id ? `${cat.color}20` : undefined, // 20 is hex for ~12% opacity
+                                    borderColor: categoryId === cat._id ? cat.color : undefined,
+                                    color: categoryId === cat._id ? cat.color : undefined
+                                }}
                                 className={clsx(
                                     "w-full p-3 rounded-xl border text-sm font-medium transition-all flex flex-col items-center justify-center gap-1 h-20",
-                                    categoryId === cat._id 
-                                    ? "bg-primary/10 border-primary text-primary dark:bg-primary/20" 
-                                    : "bg-white dark:bg-slate-700/50 border-gray-100 dark:border-slate-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700"
+                                    categoryId !== cat._id && "bg-white dark:bg-slate-700/50 border-gray-100 dark:border-slate-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700"
                                 )}
                             >
-                                <div className="mb-1">{getCategoryIcon(cat.icon)}</div>
+                                <div className="mb-1" style={{ color: categoryId !== cat._id ? cat.color : 'inherit' }}>{getCategoryIcon(cat.icon)}</div>
                                 <span>{cat.name}</span>
                             </button>
                             {/* Delete Button for Custom Categories */}
