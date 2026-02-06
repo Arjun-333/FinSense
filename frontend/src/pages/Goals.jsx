@@ -190,7 +190,7 @@ const Goals = () => {
                                 </div>
                             </div>
                             <div className="flex gap-3 mt-6">
-                                <button type="button" onClick={()=>setIsModalOpen(false)} className="flex-1 py-3 bg-gray-100 rounded-xl font-bold">Cancel</button>
+                                <button type="button" onClick={()=>setIsModalOpen(false)} className="flex-1 py-3 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-slate-700">Cancel</button>
                                 <button type="submit" className="flex-1 py-3 bg-primary text-white rounded-xl font-bold">Create</button>
                             </div>
                          </form>
