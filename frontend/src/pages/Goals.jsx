@@ -49,7 +49,6 @@ const Goals = () => {
             setIsModalOpen(false);
             resetForm();
             fetchGoals();
-            fetchGoals();
             addToast("Goal created successfully", "success");
         } catch (error) {
             addToast("Failed to create goal", "error");

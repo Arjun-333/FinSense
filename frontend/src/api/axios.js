@@ -15,6 +15,9 @@ const API = {
     
     // Goals
     if (url.includes('/goals')) return { data: await LocalService.addGoal(data) };
+
+    // Budgets
+    if (url.includes('/budgets')) return { data: await LocalService.addBudget(data) };
     
     throw new Error(`Mock POST not implemented for: ${url}`);
   },
@@ -49,6 +52,12 @@ const API = {
       if (url.includes('/goals/')) {
           const id = url.split('/').pop();
           return { data: await LocalService.deleteGoal(id) };
+      }
+
+      // Budgets: /budgets/:id   (Note: Frontend might need to send DELETE for budget if implemented in UI)
+      if (url.includes('/budgets/')) {
+          const id = url.split('/').pop();
+          return { data: await LocalService.deleteBudget(id) };
       }
 
       throw new Error(`Mock DELETE not implemented for: ${url}`);

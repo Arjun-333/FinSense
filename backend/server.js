@@ -24,13 +24,15 @@ const startServer = async () => {
     const expenseRoutes = require("./routes/expenseRoutes");
     const categoryRoutes = require("./routes/categoryRoutes");
     const budgetRoutes = require("./routes/budgetRoutes");
+    const goalRoutes = require("./routes/goalRoutes");
     const analyticsRoutes = require("./routes/analyticsRoutes");
 
     app.use("/api/auth", authRoutes);
     app.use("/api/expenses", expenseRoutes);
     app.use("/api/categories", categoryRoutes);
     app.use("/api/budgets", budgetRoutes);
-    console.log("Budget routes initialized");
+    app.use("/api/goals", goalRoutes);
+    console.log("Budget and Goal routes initialized");
     app.use("/api/analytics", analyticsRoutes);
 
     const PORT = process.env.PORT || 5000;

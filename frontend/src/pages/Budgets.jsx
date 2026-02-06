@@ -5,9 +5,11 @@ import { ArrowLeft, Plus, Edit2, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { motion } from 'framer-motion';
+import { useToast } from '../context/ToastContext';
 
 const Budgets = () => {
     const navigate = useNavigate();
+    const { addToast } = useToast();
     const [loading, setLoading] = useState(true);
     const [budgets, setBudgets] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -50,9 +52,10 @@ const Budgets = () => {
             setBudgetAmount('');
             setSelectedCategory('');
             fetchData(); // Refresh
+            addToast("Budget saved successfully", "success");
         } catch (error) {
             console.error("Failed to save budget");
-            alert("Failed to save budget");
+            addToast("Failed to save budget", "error");
         }
     };
 

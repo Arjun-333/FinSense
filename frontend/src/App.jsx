@@ -29,7 +29,6 @@ function App() {
           <Route path="/add-category" element={<AddCategory />} />
           <Route path="/budgets" element={<Budgets />} />
           <Route path="/goals" element={<Goals />} />
-          <Route path="/goals" element={<Goals />} />
           <Route path="/tools" element={<Tools />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/analysis" element={<Analysis />} />

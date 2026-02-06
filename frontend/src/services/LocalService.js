@@ -145,9 +145,10 @@ const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
     const goals = JSON.parse(localStorage.getItem(STORAGE_KEYS.GOALS) || '[]');
     const newGoal = {
       _id: "goal-" + Date.now(),
-      title: goalData.title,
+      name: goalData.name,
       targetAmount: Number(goalData.targetAmount),
-      currentAmount: Number(goalData.currentAmount || 0),
+      savedAmount: Number(goalData.savedAmount || 0),
+      color: goalData.color,
       deadline: goalData.deadline,
       createdAt: new Date().toISOString()
     };
@@ -178,8 +179,52 @@ const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
   // --- Budgets ---
   getBudgets: async () => {
       await delay();
-      // Simple mock for budgets
-      return []; 
+      const budgets = JSON.parse(localStorage.getItem('finsense_budgets') || '[]');
+      // Populate categories
+      const populated = budgets.map(b => {
+          const cat = DEFAULT_CATEGORIES.find(c => c._id === b.category);
+          return {
+              ...b,
+              category: cat || { _id: b.category, name: 'Unknown', color: '#94a3b8' }
+          };
+      });
+      return populated;
+  },
+
+  addBudget: async (budgetData) => {
+      await delay();
+      let budgets = JSON.parse(localStorage.getItem('finsense_budgets') || '[]');
+      
+      // Check if budget exists for category
+      const existingIndex = budgets.findIndex(b => b.category === budgetData.category);
+      
+      if (existingIndex >= 0) {
+          budgets[existingIndex].amount = Number(budgetData.amount);
+          localStorage.setItem('finsense_budgets', JSON.stringify(budgets));
+          const cat = DEFAULT_CATEGORIES.find(c => c._id === budgets[existingIndex].category);
+          return { ...budgets[existingIndex], category: cat };
+      } else {
+          const newBudget = {
+              _id: "budget-" + Date.now(),
+              category: budgetData.category, // ID
+              amount: Number(budgetData.amount),
+              period: 'month',
+              createdAt: new Date().toISOString()
+          };
+          budgets.push(newBudget);
+          localStorage.setItem('finsense_budgets', JSON.stringify(budgets));
+          
+          const cat = DEFAULT_CATEGORIES.find(c => c._id === newBudget.category);
+          return { ...newBudget, category: cat };
+      }
+  },
+
+  deleteBudget: async (id) => {
+      await delay();
+      let budgets = JSON.parse(localStorage.getItem('finsense_budgets') || '[]');
+      budgets = budgets.filter(b => b._id !== id);
+      localStorage.setItem('finsense_budgets', JSON.stringify(budgets));
+      return { message: "Budget deleted" };
   },
 
   // --- Analytics (Calculated on the fly) ---
